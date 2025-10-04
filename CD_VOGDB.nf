@@ -1,6 +1,6 @@
-params.splitByFamilies = "/data/UsingVOGDB.py"
+params.splitByFamilies = "./data/UsingVOGDB.py"
 params.email = "ilabessonov9@gmail.com"
-params.configuration = "data/configuration.cnf"
+params.configuration = "./data/configuration.cnf"
 params.output = ""
 
 log.info """
@@ -27,6 +27,7 @@ process DownloadVOGs {
 
 // Thie process use python script to split each VOG to different families
 process SplitByFamilies {
+maxForks 3
     input:
       path VOG
       path script
@@ -35,7 +36,7 @@ process SplitByFamilies {
     output:
       path ".fasta", optional: true
       
-    sceipt:
+    script:
     """
     python $script -f $VOG -e $email
     """
@@ -65,14 +66,16 @@ process RunTabajara {
       path conf
       
     output:
-      path "*hmm"
+      path "*hmm", optional: true
 
     script:
     """
-    echo "input_file=$aligned" >> $conf
+    cp $conf new_conf
+    echo "input_file=$aligned" >> new_conf
     echo "output=cons" >> $conf
-    tabajara -conf $conf
-    cd cons/hmms/valid_HMMs/
+    tabajara -conf new_conf
+    if [ -d "cons/hmms/valid_HMMs" ]; then
+        cd cons/hmms/valid_HMMs/
     """
 }
 
@@ -81,14 +84,14 @@ process RunTabajara {
 process PressHMMs {
 publishDir "${params.output}", mode: 'copy'
     input:
-      path hmm
+      path shmm
       
     output:
       "*"
       
     script:
     """
-    cat hmm > hmm_database.hmm
+    cat $hmms > hmm_database.hmm
     hmmpress hmm_database.hmm
     rm hmm_database.hmm
     """
@@ -96,15 +99,18 @@ publishDir "${params.output}", mode: 'copy'
 
 
 workflow {
+script1 = file(params.splitByFamilies )
+config1 = file(params.configuration)
+
+
 downloadVogs_ch = DownloadVOGs()
-splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), params.splitByFamilies, params.email)
+splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.email)
 alignment_ch = Alignment(splitByFamilies_ch)
-runTabajara_ch = RunTabajara(alignment_ch, params.configuration)
+runTabajara_ch = RunTabajara(alignment_ch, config1)
 pressHMMs_ch = PressHMMs(runTabajara_ch.collect())
 
 
 }
-
 
 
 
