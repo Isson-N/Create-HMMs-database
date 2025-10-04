@@ -1,0 +1,10 @@
+threshold=0.5
+percentage=50
+window_size=15 
+minimum_block_size=15 
+method=c
+gap_sequence=20 
+maximum_distance=3 
+cutoff_score=yes
+mb=20
+
