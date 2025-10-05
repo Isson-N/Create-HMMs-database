@@ -34,7 +34,7 @@ maxForks 3
       val email
       
     output:
-      path ".fasta", optional: true
+      path "*.fasta", optional: true
       
     script:
     """
@@ -105,7 +105,7 @@ config1 = file(params.configuration)
 
 downloadVogs_ch = DownloadVOGs()
 splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.email)
-alignment_ch = Alignment(splitByFamilies_ch)
+alignment_ch = Alignment(splitByFamilies_ch.flatten())
 runTabajara_ch = RunTabajara(alignment_ch, config1)
 pressHMMs_ch = PressHMMs(runTabajara_ch.collect())
 

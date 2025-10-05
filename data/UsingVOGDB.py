@@ -43,7 +43,7 @@ df.drop_duplicates(keep='first', inplace=True) # Удаление дублика
 # Записываем инфу в файлы. Для каждого семейства должно быть минимум 5 прочтений
 for family in df['Family'].unique():
     if len(df[df['Family'] == family]) >= 5:
-        with open(f'{family} {file_name.replace('.faa', '')}.fasta', 'w') as file:
+        with open(f'{family}_{file_name.replace('.faa', '')}.fasta', 'w') as file:
             for iter, row in df[df['Family'] == family].iterrows():
                 file.write(f'>{row['Family']}_{row['Id']}')
                 file.write('\n')
