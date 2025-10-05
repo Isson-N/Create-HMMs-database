@@ -49,7 +49,7 @@ process Alignment {
       path seq
       
     output:
-      path "{basename}_aligned.fasta"
+      path "${seq.baseName}_aligned.fasta"
 
     script:
     def baseName = seq.baseName
@@ -66,16 +66,17 @@ process RunTabajara {
       path conf
       
     output:
-      path "*hmm", optional: true
+      path "*.hmm", optional: true
 
     script:
     """
     cp $conf new_conf
     echo "input_file=$aligned" >> new_conf
     echo "output=cons" >> $conf
-    tabajara -conf new_conf
+    tabajara.pl -conf new_conf
     if [ -d "cons/hmms/valid_HMMs" ]; then
         cd cons/hmms/valid_HMMs/
+    fi
     """
 }
 
