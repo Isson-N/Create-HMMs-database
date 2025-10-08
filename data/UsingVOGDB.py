@@ -7,11 +7,11 @@ import argparse
 # Нужно по идее узнать откуда они там, потому что в статье говорится, что быть не должно.
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-e", "--email", required=True, help="Email address for Entrez")
+parser.add_argument("-a", "--api_key", required=True, help="Api_Key from NCBI")
 parser.add_argument("-f", "--file", required=True, help="File to analyze")
 args = parser.parse_args()
 
-Entrez.email = args.email
+Entrez.api_key = args.api_key
 file_name = args.file
 
 # Функция, чтобы парсить странные айдишники из VOGDB. Тут удаляются дупликаты

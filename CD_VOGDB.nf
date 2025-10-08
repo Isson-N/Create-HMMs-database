@@ -1,5 +1,5 @@
 params.splitByFamilies = "./data/UsingVOGDB.py"
-params.email = "ilabessonov9@gmail.com"
+params.api_key = "b187bc11e44bbe5f49b434dee3b63ddeaf09"
 params.configuration = "./data/configuration.cnf"
 params.output = ""
 
@@ -18,33 +18,37 @@ process DownloadVOGs {
       
     script:
     """
-    wget https://fileshare.csb.univie.ac.at/vog/vog220/vog.faa.tar.gz
+    wget https://fileshare.csb.univie.ac.at/vog/vog232/vog.faa.tar.gz
     tar -xzf vog.faa.tar.gz
     rm vog.faa.tar.gz
+    cd faa
     """
 }
 
 
 // Thie process use python script to split each VOG to different families
 process SplitByFamilies {
-maxForks 3
+maxForks 5
+errorStrategy 'retry'
+maxRetries 3
     input:
       path VOG
       path script
-      val email
+      val api_key
       
     output:
       path "*.fasta", optional: true
       
     script:
     """
-    python $script -f $VOG -e $email
+    python $script -f $VOG -a $api_key
     """
 }
 
 
 // This process align each protein fasta file 
 process Alignment {
+errorStrategy 'ignore'
     input:
       path seq
       
@@ -54,7 +58,7 @@ process Alignment {
     script:
     def baseName = seq.baseName
     """
-    muscle -align $seq -output ${baseName}_aligned.fasta
+    muscle -super5 $seq -output ${baseName}_aligned.fasta
     """
 }
 
@@ -72,7 +76,7 @@ process RunTabajara {
     """
     cp $conf new_conf
     echo "input_file=$aligned" >> new_conf
-    echo "output=cons" >> $conf
+    echo "output=cons" >> new_conf
     tabajara.pl -conf new_conf
     if [ -d "cons/hmms/valid_HMMs" ]; then
         cd cons/hmms/valid_HMMs/
@@ -105,7 +109,7 @@ config1 = file(params.configuration)
 
 
 downloadVogs_ch = DownloadVOGs()
-splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.email)
+splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.api_key)
 alignment_ch = Alignment(splitByFamilies_ch.flatten())
 runTabajara_ch = RunTabajara(alignment_ch, config1)
 pressHMMs_ch = PressHMMs(runTabajara_ch.collect())
