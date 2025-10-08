@@ -16,14 +16,18 @@ file_name = args.file
 
 # Функция, чтобы парсить странные айдишники из VOGDB. Тут удаляются дупликаты
 def ids(name):
-    return f'{name.split('.')[1]}.{name.split('.')[2]}'
-
+    try:
+        new_name = f'{name.split('.')[1]}.{name.split('.')[2]}'
+    except:
+        new_name = ""
+    return new_name
 # Список со всеми айдишниками в нормальном виде
 ident = []
 seqs = []
 for record in SeqIO.parse(file_name, "fasta"):
-    ident.append(ids(record.id))
-    seqs.append(str(record.seq))
+    if ids(record.id) != "":
+        ident.append(ids(record.id))
+        seqs.append(str(record.seq))
 print(f'Извлёк ids {"\n".join(ident)}')
 
 # Создаём список с фамилиями, чтобы потом закинуть в датафрейм
@@ -45,7 +49,7 @@ df.drop_duplicates(keep='first', inplace=True) # Удаление дублика
 for family in df['Family'].unique():
     if len(df[df['Family'] == family]) >= 5:
         print(f'Создаю файл для семейства {family}')
-        with open(f'{family.replace(" ", "_")}_{file_name.replace('.faa', '')}.fasta', 'w') as file:
+        with open(f'{family.replace(" ", "_").replace(r"\", "")}_{file_name.replace('.faa', '')}.fasta', 'w') as file:
             for iter, row in df[df['Family'] == family].iterrows():
                 file.write(f'>{row['Family']}_{row['Id']}')
                 file.write('\n')

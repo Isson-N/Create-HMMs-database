@@ -14,14 +14,13 @@ DESCRIPTION: Create HMMs database using proteis sequences of different viral fam
 // This process download protein sequences of groups
 process DownloadVOGs {
     output:
-      path "*.faa"
+      path "faa/*.faa"
       
     script:
     """
     wget https://fileshare.csb.univie.ac.at/vog/vog232/vog.faa.tar.gz
     tar -xzf vog.faa.tar.gz
     rm vog.faa.tar.gz
-    cd faa
     """
 }
 
@@ -30,7 +29,7 @@ process DownloadVOGs {
 process SplitByFamilies {
 maxForks 5
 errorStrategy 'retry'
-maxRetries 3
+maxRetries 4
     input:
       path VOG
       path script
@@ -79,7 +78,7 @@ process RunTabajara {
     echo "output=cons" >> new_conf
     tabajara.pl -conf new_conf
     if [ -d "cons/hmms/valid_HMMs" ]; then
-        cd cons/hmms/valid_HMMs/
+        mv cons/hmms/valid_HMMs/ ./
     fi
     """
 }
