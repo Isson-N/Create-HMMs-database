@@ -27,9 +27,9 @@ process DownloadVOGs {
 
 // Thie process use python script to split each VOG to different families
 process SplitByFamilies {
-maxForks 5
 errorStrategy 'retry'
 maxRetries 4
+maxForks 5
     input:
       path VOG
       path script
@@ -69,16 +69,19 @@ process RunTabajara {
       path conf
       
     output:
-      path "*.hmm", optional: true
+      path "${aligned.baseName}.hmm", optional: true
 
     script:
+    def baseName = aligned.baseName
     """
     cp $conf new_conf
     echo "input_file=$aligned" >> new_conf
     echo "output=cons" >> new_conf
     tabajara.pl -conf new_conf
-    if [ -d "cons/hmms/valid_HMMs" ]; then
-        mv cons/hmms/valid_HMMs/ ./
+    if [ -z "\$(ls -A cons/hmms/valid_HMMs)" ]; then
+        echo "Папка пуста"
+    else
+        cat cons/hmms/valid_HMMs/* > ${baseName}.hmm
     fi
     """
 }
@@ -86,18 +89,17 @@ process RunTabajara {
 
 // This process press all hmms to database
 process PressHMMs {
-publishDir "${params.output}", mode: 'copy'
+publishDir "${params.output}/results", mode: 'copy'
     input:
-      path shmm
+      path hmms
       
     output:
-      "*"
+      path "*"
       
     script:
     """
     cat $hmms > hmm_database.hmm
     hmmpress hmm_database.hmm
-    rm hmm_database.hmm
     """
 }
 
@@ -112,8 +114,6 @@ splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.
 alignment_ch = Alignment(splitByFamilies_ch.flatten())
 runTabajara_ch = RunTabajara(alignment_ch, config1)
 pressHMMs_ch = PressHMMs(runTabajara_ch.collect())
-
-
 }
 
 

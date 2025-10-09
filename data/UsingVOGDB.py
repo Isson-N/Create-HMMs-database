@@ -49,7 +49,7 @@ df.drop_duplicates(keep='first', inplace=True) # Удаление дублика
 for family in df['Family'].unique():
     if len(df[df['Family'] == family]) >= 5:
         print(f'Создаю файл для семейства {family}')
-        with open(f'{family.replace(" ", "_").replace(r"\", "")}_{file_name.replace('.faa', '')}.fasta', 'w') as file:
+        with open(f'{family.replace(" ", "_").replace("\\", "")}_{file_name.replace('.faa', '')}.fasta', 'w') as file:
             for iter, row in df[df['Family'] == family].iterrows():
                 file.write(f'>{row['Family']}_{row['Id']}')
                 file.write('\n')
