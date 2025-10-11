@@ -1,4 +1,5 @@
 params.script1 = "data/DownloadProteins.py"
+params.script2 = "data/Stat.py"
 
 
 
@@ -77,6 +78,19 @@ process HmmSearch {
     """
 }
 
+process Stat {
+    input:
+      path res
+      path script
+
+    output:
+      path "*"
+
+    script:
+    """
+    python $script
+    """
+}
 
 
 workflow {
@@ -86,11 +100,12 @@ This pipeline use HMMs from VOGDB and test it on viral and non viral proteins
 ===============================================================================
 """
 script1 = file(params.script1)
+script2 = file(params.script2)
 
 
 
 extractProteins_ch = ExtractProteins(script1)
 downloadDatabase_ch = DownloadDatabase()
 resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.collect())
-
+stat_ch = Stat(resultsTxt_ch, script2)
 }
