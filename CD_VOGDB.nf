@@ -3,12 +3,6 @@ params.api_key = "b187bc11e44bbe5f49b434dee3b63ddeaf09"
 params.configuration = "./data/configuration.cnf"
 params.output = ""
 
-log.info """
-=========================================
-DESCRIPTION: Create HMMs database using proteis sequences of different viral families using VOGDB
-=========================================
-"""
-
 
 
 // This process download protein sequences of groups
@@ -105,6 +99,14 @@ publishDir "${params.output}/results", mode: 'copy'
 
 
 workflow {
+log.info """
+=========================================
+DESCRIPTION: Create HMMs database using proteis sequences of different viral families using VOGDB
+=========================================
+"""
+
+
+
 script1 = file(params.splitByFamilies )
 config1 = file(params.configuration)
 
