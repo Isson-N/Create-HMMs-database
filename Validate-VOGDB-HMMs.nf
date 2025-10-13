@@ -1,6 +1,6 @@
 params.script1 = "data/DownloadProteins.py"
 params.script2 = "data/Stat.py"
-
+params.model = ""
 
 
 process ExtractProteins {
@@ -103,9 +103,15 @@ script1 = file(params.script1)
 script2 = file(params.script2)
 
 
-
 extractProteins_ch = ExtractProteins(script1)
-downloadDatabase_ch = DownloadDatabase()
+
+if (!params.model) {
+    downloadDatabase_ch = DownloadDatabase()
+}
+else {
+    downloadDatabase_ch = Channel.fromPath("${params.model}/*")
+}
+
 resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.collect())
 stat_ch = Stat(resultsTxt_ch, script2)
 }
