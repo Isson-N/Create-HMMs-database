@@ -69,7 +69,7 @@ process HmmSearch {
       path proteins
     
     output:
-      path ".txt"
+      path "*.txt"
 
     script:
     """
