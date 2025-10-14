@@ -1,7 +1,7 @@
 params.script1 = "data/DownloadProteins.py"
 params.script2 = "data/Stat.py"
 params.model = ""
-
+params.output = "/home/bessonov_id/work/Create-HMMs-database"
 
 process ExtractProteins {
     input:
@@ -73,12 +73,13 @@ process HmmSearch {
 
     script:
     """
-    hmmsearch --tblout Viral_results.txt VOGs.hmm Viral.fasta
-    hmmsearch --tblout NonViral_results.txt VOGs.hmm NonViral.fasta
+    hmmsearch --tblout Viral_results.txt *.hmm Viral.fasta
+    hmmsearch --tblout NonViral_results.txt *.hmm NonViral.fasta
     """
 }
 
 process Stat {
+publishDir "${params.output}/results", mode: 'copy'
     input:
       path res
       path script
