@@ -109,8 +109,10 @@ for model in combined_df["query_name"].unique():
 	k+=1
 	print(f"\rОбработал модель: {model}. Это {k} модель из {ln}", end="")
 
+models.to_csv("models.csv", index=False)
+models['AUC'] = models['AUC'].astype(float)
 filt_models = models[models["AUC" >= 0.75]]
-filt_models.to_csv("Good_models.csv", index=False)
+filt_models.to_csv("good_models.csv", index=False)
 
 plt.plot([0, 1], [0, 1], 'k--', alpha=0.5)
 plt.xlabel('False Positive Rate')
