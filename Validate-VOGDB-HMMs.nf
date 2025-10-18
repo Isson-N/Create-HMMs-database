@@ -1,14 +1,17 @@
 params.script1 = "data/DownloadProteins.py"
-params.script2 = "data/Stat.py"
+params.script2 = "data/ViralNonviralStat.py"
+params.script3 = "data/FamiliesStat.py"
 params.model = ""
 params.output = "/home/bessonov_id/work/Create-HMMs-database"
+params.testFamilies = false
 
 process ExtractProteins {
     input:
       path script
     
     output:
-      path "*.fasta"
+      path "Viral.fasta", emit: viral
+      path "NonViral.fasta", emit: nonviral
 
     script:
     """
@@ -66,26 +69,29 @@ process DownloadDatabase {
 process HmmSearch {
     input:
       path hmm_database
-      path proteins
+      path viral
+      path nonviral
     
     output:
-      path "*.txt"
+      path "Viral_results.txt", emit: viral_res
+      path "NonViral_results.txt", emit: nonviral_res
 
     script:
     """
-    hmmsearch --tblout Viral_results.txt *.hmm Viral.fasta
-    hmmsearch --tblout NonViral_results.txt *.hmm NonViral.fasta
+    hmmsearch --tblout Viral_results.txt *.hmm $viral
+    hmmsearch --tblout NonViral_results.txt *.hmm $nonviral
     """
 }
 
-process Stat {
-publishDir "${params.output}/results", mode: 'copy'
+process ViralNonviralStat {
+publishDir "${params.output}/ViralNonviralStat", mode: 'copy'
     input:
-      path res
       path script
+      path viral_res
+      path nonviral_res
 
     output:
-      path "*"
+      path "*.png"
 
     script:
     """
@@ -93,26 +99,79 @@ publishDir "${params.output}/results", mode: 'copy'
     """
 }
 
+process FamiliesStat {
+publishDir "${params.output}/FamiliesStat", mode: 'copy'
+    input:
+      path script
+      path viral_res
+      path nonviral_res
+
+    output:
+      path "*.png"
+
+    script:
+    """
+    
+    """
+}
+
+
 
 workflow {
 log.info """
 ===============================================================================
 This pipeline use HMMs from VOGDB and test it on viral and non viral proteins
+
+If default mode (only output was specified)
+1. ExtractProteins - makes viral and nonviral fasta files from uniprot ftp
+2. DownloadDatabase - download hmm models for each VOG from VOGDB
+3. HmmSearch - hmmsearch models agains fasta files
+4. ViralNonviralStat - produce distributions and ROC curves, how model divide viral and noviral sequences
+
+If model was specified
+1. ExtractProteins - makes viral and nonviral fasta files from uniprot ftp
+2. DownloadDatabase - use specified model
+3. HmmSearch - hmmsearch models agains fasta files
+4. ViralNonviralStat - produce distributions and ROC curves, how models divide viral and noviral sequences
+
+If model was specified and testFamilies = true
+1. ExtractProteins - makes viral and nonviral fasta files from uniprot ftp. Next processes
+use only viral fasta files. It is important, that family name specified in each record id
+2. DownloadDatabase - use specified model
+3. HmmSearch - hmmsearch models agains fasta files
+4. FamiliesStat - produce distributions and ROC curves, how models divide each families
 ===============================================================================
 """
 script1 = file(params.script1)
 script2 = file(params.script2)
+script3 = file(params.script3)
 
 
-extractProteins_ch = ExtractProteins(script1)
 
-if (!params.model) {
+
+if (!params.model && params.testFamilies == false)  {
+    extractProteins_ch = ExtractProteins(script1)
     downloadDatabase_ch = DownloadDatabase()
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral, extractProteins_ch.nonviral)
+    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.viral_res, resultsTxt_ch.nonviral_res)
 }
-else {
+else if (params.model) {
+    extractProteins_ch = ExtractProteins(script1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral, extractProteins_ch.nonviral)
+    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.viral_res, resultsTxt_ch.nonviral_res)
+}
+else if (params.model && params.testFamilies) {
+
+
+
 }
 
-resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.collect())
-stat_ch = Stat(resultsTxt_ch, script2)
+
+
+
+
 }
+
+
+# Перепиши, чтобы изменяло названия и вставляло в вирусах название вируса. А так же исследуй только на вирусах проверку семейств
