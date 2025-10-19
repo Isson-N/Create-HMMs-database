@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc, RocCurveDisplay
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -77,6 +76,7 @@ for model in combined_df["query_name"].unique():
 	line = []
 	line.append(model)
 	line.append(roc_auc)
+	
 	try:
 		viral_max_full_score = np.max(dfm[dfm["is_viral"] == 1]["full_score"])
 	except:
@@ -86,7 +86,7 @@ for model in combined_df["query_name"].unique():
 	try:
 		nonviral_max_full_score = np.max(dfm[dfm["is_viral"] == 0]["full_score"])
 	except:
-		viral_max_full_score = 0
+		nonviral_max_full_score = 0
 	line.append(nonviral_max_full_score)
     
 	try:
@@ -110,7 +110,7 @@ for model in combined_df["query_name"].unique():
 	print(f"\rОбработал модель: {model}. Это {k} модель из {ln}", end="")
 
 models.to_csv("models.csv", index=False)
-models['AUC'] = models['AUC'].astype(float)
+filt_models = models.dropna(subset=['AUC'])
 filt_models = models[models["AUC" >= 0.75]]
 filt_models.to_csv("good_models.csv", index=False)
 

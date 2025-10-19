@@ -69,17 +69,15 @@ process DownloadDatabase {
 process HmmSearch {
     input:
       path hmm_database
-      path viral
-      path nonviral
+      path protein
     
     output:
-      path "Viral_results.txt", emit: viral_res
-      path "NonViral_results.txt", emit: nonviral_res
+      path "${protein.baseName}_results.txt"
 
     script:
+    def baseName = protein.baseName
     """
-    hmmsearch --tblout Viral_results.txt *.hmm $viral
-    hmmsearch --tblout NonViral_results.txt *.hmm $nonviral
+    hmmsearch --tblout "${baseName}_results.txt" *.hmm $protein
     """
 }
 
@@ -87,8 +85,7 @@ process ViralNonviralStat {
 publishDir "${params.output}/ViralNonviralStat", mode: 'copy'
     input:
       path script
-      path viral_res
-      path nonviral_res
+      path results
 
     output:
       path "*.png"
@@ -152,26 +149,21 @@ script3 = file(params.script3)
 if (!params.model && params.testFamilies == false)  {
     extractProteins_ch = ExtractProteins(script1)
     downloadDatabase_ch = DownloadDatabase()
-    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral, extractProteins_ch.nonviral)
-    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.viral_res, resultsTxt_ch.nonviral_res)
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.flatten())
+    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
 else if (params.model) {
     extractProteins_ch = ExtractProteins(script1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
-    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral, extractProteins_ch.nonviral)
-    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.viral_res, resultsTxt_ch.nonviral_res)
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.flatten())
+    stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
 else if (params.model && params.testFamilies) {
-
-
-
-}
-
-
-
-
+    extractProteins_ch = ExtractProteins(script1)
+    downloadDatabase_ch = Channel.fromPath("${params.model}/*")
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral)
+    stat_ch = FamiliesStat(script3, resultsTxt_ch)
 
 }
 
-
-# Перепиши, чтобы изменяло названия и вставляло в вирусах название вируса. А так же исследуй только на вирусах проверку семейств
+}
