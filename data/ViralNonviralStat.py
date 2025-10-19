@@ -72,7 +72,9 @@ for model in combined_df["query_name"].unique():
 	labels = dfm['is_viral']
 	fpr, tpr, thresholds = roc_curve(labels, scores)
 	roc_auc = auc(fpr, tpr)
- 
+	if len(dfm[dfm["is_viral"] == 0]) == 0:
+		roc_auc = 1
+	
 	line = []
 	line.append(model)
 	line.append(roc_auc)
@@ -103,8 +105,7 @@ for model in combined_df["query_name"].unique():
 	
 	models.loc[len(models)] = line
   	
-	plt.plot(fpr, tpr, color='#0bb4ff', linewidth=1, 
-                label=f'full_score (AUC = {roc_auc:.3f})')
+	plt.plot(fpr, tpr, color='#0bb4ff', linewidth=1)
 	
 	k+=1
 	print(f"\rОбработал модель: {model}. Это {k} модель из {ln}", end="")
