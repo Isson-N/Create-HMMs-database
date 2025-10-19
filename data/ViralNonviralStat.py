@@ -52,7 +52,7 @@ def parse_model(args):
 		mean_only_viral = 0
 	line.append(mean_only_viral) 
 	
-	return [line, fpr, tpr]
+	return line
 
 
 
@@ -120,17 +120,12 @@ if __name__ == "__main__":
     
 	with multiprocessing.Pool(multiprocessing.cpu_count()) as prc:
 		 lines = prc.map(parse_model, model_data)
-	
+
+	print("Сохраняю результаты для с моделями")
 	for line in lines:
-		results.loc[len(results)] = line[0]
-		plt.plot(line[1], line[2], color="#0bb4ff", linewidth=1, alpha=0.5)
+		results.loc[len(results)] = line
 	
 	results.to_csv("models.csv", index=False)
 	filt = results.dropna(subset=['AUC'])
 	filt_models = filt[filt["AUC"] >= 0.75]
 	filt_models.to_csv("good_models.csv", index=False)
-	
-	plt.savefig("ROC_curves.png")
-	plt.show()
-
-    
