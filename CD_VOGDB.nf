@@ -2,7 +2,7 @@ params.splitByFamilies = "./data/UsingVOGDB.py"
 params.api_key = "b187bc11e44bbe5f49b434dee3b63ddeaf09"
 params.configuration = "./data/configuration.cnf"
 params.output = ""
-
+params.msl = "./data/ICTV_Master_Species_List_2024_MSL40.v2.xlsx"
 
 
 // This process download protein sequences of groups
@@ -28,7 +28,8 @@ maxForks 5
       path VOG
       path script
       val api_key
-      
+      path msl      
+
     output:
       path "*.fasta", optional: true
       
@@ -107,12 +108,13 @@ DESCRIPTION: Create HMMs database using proteis sequences of different viral fam
 
 
 
-script1 = file(params.splitByFamilies )
+script1 = file(params.splitByFamilies)
 config1 = file(params.configuration)
+msl1 = file(params.msl)
 
 
 downloadVogs_ch = DownloadVOGs()
-splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.api_key)
+splitByFamilies_ch = SplitByFamilies(downloadVogs_ch.flatten(), script1, params.api_key, msl1)
 alignment_ch = Alignment(splitByFamilies_ch.flatten())
 runTabajara_ch = RunTabajara(alignment_ch, config1)
 pressHMMs_ch = PressHMMs(runTabajara_ch.collect())
