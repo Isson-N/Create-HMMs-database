@@ -103,7 +103,6 @@ publishDir "${params.output}/FamiliesStat", mode: 'copy'
     input:
       path script
       path viral_res
-      path nonviral_res
 
     output:
       path "*"
@@ -155,14 +154,14 @@ if (!params.model && params.testFamilies == false)  {
     resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), multi_ch)
     stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
-else if (params.model) {
+else if (params.model && params.testFamilies == false) {
     extractProteins_ch = ExtractProteins(script1, msl1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
-    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.flatten())
     multi_ch = extractProteins_ch.viral.mix(extractProteins_ch.nonviral)
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), multi_ch)
     stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
-else if (params.model && params.testFamilies) {
+else if (params.model && params.testFamilies == true) {
     extractProteins_ch = ExtractProteins(script1, msl1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
     resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral)
