@@ -27,31 +27,48 @@ def parse_model(args):
 	line = []
 	line.append(model)
 	line.append(roc_auc)
-	
+
 	try:
 		viral_max_full_score = np.max(dfm[dfm["is_viral"] == 1]["full_score"])
 	except:
-		viral_max_full_score = 0
+		viral_max_full_score = ""
 	line.append(viral_max_full_score)
     
 	try:
 		nonviral_max_full_score = np.max(dfm[dfm["is_viral"] == 0]["full_score"])
 	except:
-		nonviral_max_full_score = 0
+		nonviral_max_full_score = ""
 	line.append(nonviral_max_full_score)
     
 	try:
 		relation = viral_max_full_score/nonviral_max_full_score
 	except:
-		relation = 0
+		relation = ""
 	line.append(relation)
     
 	try:
 		mean_only_viral = np.mean(dfm[(dfm["is_viral"] == 1) & (dfm["full_score"] >= nonviral_max_full_score)]["full_score"])
 	except:
-		mean_only_viral = 0
+		mean_only_viral = ""
 	line.append(mean_only_viral) 
-	
+
+	try:
+		viral_count = len(dfm[dfm["is_viral"] == 1])
+	except:
+		viral_count = ""
+	line.append(viral_count)
+
+	try:
+		nonviral_count = len(dfm[dfm["is_viral"] == 0])
+	except:
+		nonviral_count = ""
+	line.append(nonviral_count)
+
+	try:
+		only_viral = len(dfm[(dfm["is_viral"] == 1) & (dfm["full_score"] >= nonviral_max_full_score)])
+	except:
+		only_viral = ""
+	line.append(only_viral)
 	return line
 
 
@@ -112,16 +129,16 @@ if __name__ == "__main__":
 	
 	# Построим ROC кривые для каждой модели
 	print("Собираю таблицу и строю ROC кривые")
-	results = pd.DataFrame(columns = ['Model_name', "AUC", "Viral_max_full-score", "NonViral_max_full-score",  "Relation_Viral-NonViral", "Mean_only_viral_full-score" ])
+	results = pd.DataFrame(columns = ['Model_name', "AUC", "Viral_max_full-score", "NonViral_max_full-score",  "Relation_Viral-NonViral", "Mean_only_viral_full-score", "Viral_count", "NonViral_count", "Only_viral_count"])
 	models = combined_df['query_name'].unique()
 	model_data = []
 	for model in models:
 		model_data.append((model, combined_df))
     
-	with multiprocessing.Pool(multiprocessing.cpu_count()) as prc:
+	with multiprocessing.Pool(multiprocessing.cpu_count()-2) as prc:
 		 lines = prc.map(parse_model, model_data)
 
-	print("Сохраняю результаты для с моделями")
+	print("Сохраняю результаты с моделями")
 	for line in lines:
 		results.loc[len(results)] = line
 	

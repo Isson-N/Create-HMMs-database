@@ -1,6 +1,7 @@
 params.script1 = "data/DownloadProteins.py"
 params.script2 = "data/ViralNonviralStat.py"
 params.script3 = "data/FamiliesStat.py"
+params.msl = "data/ICTV_Master_Species_List_2024_MSL40.v2.xlsx"
 params.model = ""
 params.output = "/home/bessonov_id/work/Create-HMMs-database"
 params.testFamilies = false
@@ -8,6 +9,7 @@ params.testFamilies = false
 process ExtractProteins {
     input:
       path script
+      path msl
     
     output:
       path "Viral.fasta", emit: viral
@@ -88,7 +90,7 @@ publishDir "${params.output}/ViralNonviralStat", mode: 'copy'
       path results
 
     output:
-      path "*.png"
+      path "*"
 
     script:
     """
@@ -104,7 +106,7 @@ publishDir "${params.output}/FamiliesStat", mode: 'copy'
       path nonviral_res
 
     output:
-      path "*.png"
+      path "*"
 
     script:
     """
@@ -142,14 +144,15 @@ use only viral fasta files. It is important, that family name specified in each 
 script1 = file(params.script1)
 script2 = file(params.script2)
 script3 = file(params.script3)
-
+msl1 = file(params.msl)
 
 
 
 if (!params.model && params.testFamilies == false)  {
-    extractProteins_ch = ExtractProteins(script1)
+    extractProteins_ch = ExtractProteins(script1, msl1)
     downloadDatabase_ch = DownloadDatabase()
-    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.flatten())
+    multi_ch = extractProteins_ch.viral.mix(extractProteins_ch.nonviral)
+    resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), multi_ch)
     stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
 else if (params.model) {
