@@ -156,13 +156,14 @@ if (!params.model && params.testFamilies == false)  {
     stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
 else if (params.model) {
-    extractProteins_ch = ExtractProteins(script1)
+    extractProteins_ch = ExtractProteins(script1, msl1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
     resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.flatten())
+    multi_ch = extractProteins_ch.viral.mix(extractProteins_ch.nonviral)
     stat_ch = ViralNonviralStat(script2, resultsTxt_ch.collect())
 }
 else if (params.model && params.testFamilies) {
-    extractProteins_ch = ExtractProteins(script1)
+    extractProteins_ch = ExtractProteins(script1, msl1)
     downloadDatabase_ch = Channel.fromPath("${params.model}/*")
     resultsTxt_ch = HmmSearch(downloadDatabase_ch.collect(), extractProteins_ch.viral)
     stat_ch = FamiliesStat(script3, resultsTxt_ch)
