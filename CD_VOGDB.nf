@@ -83,7 +83,7 @@ process RunTabajara {
 
 // This process press all hmms to database
 process PressHMMs {
-publishDir "${params.output}/results", mode: 'copy'
+publishDir "${params.output}/VOGDB_own_hmm", mode: 'copy'
     input:
       path hmms
       

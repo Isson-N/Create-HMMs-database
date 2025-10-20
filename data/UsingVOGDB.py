@@ -14,6 +14,10 @@ args = parser.parse_args()
 Entrez.api_key = args.api_key
 file_name = args.file
 
+# Придётся делать проверку на то, что именно семейство вирусов
+families_df = pd.read_excel("ICTV_Master_Species_List_2024_MSL40.v2.xlsx", sheet_name="MSL")
+families_df = families_df["Family"].unique()
+
 # Функция, чтобы парсить странные айдишники из VOGDB. Тут удаляются дупликаты
 def ids(name):
     try:
@@ -35,11 +39,13 @@ families = []
 with Entrez.efetch(db = 'protein', rettype = 'gb', id = ident) as handle:
     gb = SeqIO.parse(handle, 'genbank')
     for record in gb:
-        try:
-            family = record.annotations.get('taxonomy')[6]
-        except IndexError:
-            family = 'Unrecognized'
-
+        family = ""
+        for i in record.annotations.get('taxonomy'):
+            if i in families_df:
+                family = i
+                break
+        if family == "":
+            family = "Unrecognized"
         families.append(family)
 
 df = pd.DataFrame({'Id': ident, 'Family': families, 'Sequence': seqs})
