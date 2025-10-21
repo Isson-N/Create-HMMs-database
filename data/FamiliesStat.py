@@ -83,4 +83,7 @@ for family in viral_df["real_family"].unique().tolist():
  
 results_df.to_csv("Families_models.csv")
 plt.savefig("Families_ROC_curves.png")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC curves")
 plt.show()
