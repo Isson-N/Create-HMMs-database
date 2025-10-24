@@ -109,7 +109,7 @@ publishDir "${params.output}/FamiliesStat", mode: 'copy'
 
     script:
     """
-    
+    python $script    
     """
 }
 
