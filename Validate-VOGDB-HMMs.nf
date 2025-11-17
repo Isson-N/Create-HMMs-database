@@ -17,37 +17,72 @@ process ExtractProteins {
 
     script:
     """
-    # Archaea
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_archaea.dat.gz
-    gzip -d uniprot_sprot_archaea.dat.gz
-    # Bacteria
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_bacteria.dat.gz
-    gzip -d uniprot_sprot_bacteria.dat.gz
-    # Fungi
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_fungi.dat.gz
-    gzip -d uniprot_sprot_fungi.dat.gz
-    # Human
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_human.dat.gz
-    gzip -d uniprot_sprot_human.dat.gz
-    # Invertebrates
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_invertebrates.dat.gz
-    gzip -d uniprot_sprot_invertebrates.dat.gz
-    # Mammals
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_mammals.dat.gz
-    gzip -d uniprot_sprot_mammals.dat.gz
-    # Plants
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_plants.dat.gz
-    gzip -d uniprot_sprot_plants.dat.gz
-    # Rodents
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_rodents.dat.gz
-    gzip -d uniprot_sprot_rodents.dat.gz
-    # Vertebrates
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_vertebrates.dat.gz
-    gzip -d uniprot_sprot_vertebrates.dat.gz
+# Swiss-Prot files
+# Archaea
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_archaea.dat.gz
+gzip -d uniprot_sprot_archaea.dat.gz
+# Bacteria
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_bacteria.dat.gz
+gzip -d uniprot_sprot_bacteria.dat.gz
+# Fungi
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_fungi.dat.gz
+gzip -d uniprot_sprot_fungi.dat.gz
+# Human
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_human.dat.gz
+gzip -d uniprot_sprot_human.dat.gz
+# Invertebrates
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_invertebrates.dat.gz
+gzip -d uniprot_sprot_invertebrates.dat.gz
+# Mammals
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_mammals.dat.gz
+gzip -d uniprot_sprot_mammals.dat.gz
+# Plants
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_plants.dat.gz
+gzip -d uniprot_sprot_plants.dat.gz
+# Rodents
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_rodents.dat.gz
+gzip -d uniprot_sprot_rodents.dat.gz
+# Vertebrates
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_vertebrates.dat.gz
+gzip -d uniprot_sprot_vertebrates.dat.gz
+# Viruses
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_viruses.dat.gz
+gzip -d uniprot_sprot_viruses.dat.gz
 
-    #Viruses
-    wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_sprot_viruses.dat.gz
-    gzip -d uniprot_sprot_viruses.dat.gz
+# TrEMBL files
+# Archaea
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_archaea.dat.gz
+gzip -d uniprot_trembl_archaea.dat.gz
+# Bacteria
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_bacteria.dat.gz
+gzip -d uniprot_trembl_bacteria.dat.gz
+# Fungi
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_fungi.dat.gz
+gzip -d uniprot_trembl_fungi.dat.gz
+# Human
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_human.dat.gz
+gzip -d uniprot_trembl_human.dat.gz
+# Invertebrates
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_invertebrates.dat.gz
+gzip -d uniprot_trembl_invertebrates.dat.gz
+# Mammals
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_mammals.dat.gz
+gzip -d uniprot_trembl_mammals.dat.gz
+# Plants
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_plants.dat.gz
+gzip -d uniprot_trembl_plants.dat.gz
+# Rodents
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_rodents.dat.gz
+gzip -d uniprot_trembl_rodents.dat.gz
+# Vertebrates
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_vertebrates.dat.gz
+gzip -d uniprot_trembl_vertebrates.dat.gz
+# Viruses
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_viruses.dat.gz
+gzip -d uniprot_trembl_viruses.dat.gz
+# Unclassified
+wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/uniprot_trembl_unclassified.dat.gz
+gzip -d uniprot_trembl_unclassified.dat.gz
 
     python $script
     """
